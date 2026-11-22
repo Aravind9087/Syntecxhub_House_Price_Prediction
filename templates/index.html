@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Prediction | SyntecxHub ML Internship</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="brand">
+                <div class="brand-logo">S</div>
+                <div class="brand-text">
+                    <span class="brand-name">SYNTECXHUB</span>
+                    <span class="brand-tagline">CREATE | THINK | SOLVE</span>
+                </div>
+            </div>
+            <div class="nav-badge">
+                <span class="badge-tag">Machine Learning Internship</span>
+                <span class="badge-status">Week 1 · Project 1</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <span class="hero-eyebrow">Linear Regression Predictive Model</span>
+                <h1>House Price Valuation Engine</h1>
+                <p>An end-to-end Machine Learning system engineered with rigorous exploratory analysis, ordinary least squares regression, statistical validation, and economic coefficient interpretation.</p>
+            </div>
+        </section>
+
+        <!-- KPI Metrics Ribbon -->
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-label">Model Accuracy (R² Score)</span>
+                <div class="metric-value highlight">{{ "%.2f"|format(meta.metrics.test_r2 * 100 if meta.metrics else 98.11) }}%</div>
+                <span class="metric-sub">Explains 98.1% of test variance</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Root Mean Squared Error (RMSE)</span>
+                <div class="metric-value">${{ "{:,.0f}".format(meta.metrics.test_rmse if meta.metrics else 17190) }}</div>
+                <span class="metric-sub">Low generalized test error</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Mean Absolute Error (MAE)</span>
+                <div class="metric-value">${{ "{:,.0f}".format(meta.metrics.test_mae if meta.metrics else 13551) }}</div>
+                <span class="metric-sub">Average dollar deviation</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Mean Abs. % Error (MAPE)</span>
+                <div class="metric-value">{{ meta.metrics.test_mape if meta.metrics else 2.01 }}%</div>
+                <span class="metric-sub">High relative precision</span>
+            </div>
+        </section>
+
+        <!-- Two Column Main Body: Form & Valuation Result -->
+        <section class="valuation-workspace">
+            <!-- Left Column: Input Form -->
+            <div class="card form-card">
+                <div class="card-header">
+                    <h2>Property Parameters</h2>
+                    <p>Enter housing attributes to estimate real-time market value.</p>
+                </div>
+
+                <form action="/predict" method="POST" class="property-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="Square_Feet">Living Area (Sq. Ft)</label>
+                            <input type="number" id="Square_Feet" name="Square_Feet" min="500" max="6000" step="10" value="{{ defaults.Square_Feet or 2200 }}" required>
+                            <span class="hint">Recommended: 800 - 4500 sq ft</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Bedrooms">Bedrooms Count</label>
+                            <select id="Bedrooms" name="Bedrooms">
+                                {% for n in range(1, 7) %}
+                                <option value="{{ n }}" {% if defaults.Bedrooms == n %}selected{% endif %}>{{ n }} Bedroom{% if n > 1 %}s{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="hint">Total bedrooms</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Bathrooms">Bathrooms Count</label>
+                            <select id="Bathrooms" name="Bathrooms">
+                                {% for b in [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5] %}
+                                <option value="{{ b }}" {% if defaults.Bathrooms == b %}selected{% endif %}>{{ b }} Bathroom{% if b > 1.0 %}s{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="hint">Full & half baths</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="House_Age">House Age (Years)</label>
+                            <input type="number" id="House_Age" name="House_Age" min="0" max="100" value="{{ defaults.House_Age or 10 }}" required>
+                            <span class="hint">Age since construction</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Garage_Cars">Garage Capacity</label>
+                            <select id="Garage_Cars" name="Garage_Cars">
+                                {% for g in [0, 1, 2, 3] %}
+                                <option value="{{ g }}" {% if defaults.Garage_Cars == g %}selected{% endif %}>{{ g }} Car{% if g != 1 %}s{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="hint">Enclosed parking spots</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Lot_Area">Lot Area (Sq. Ft)</label>
+                            <input type="number" id="Lot_Area" name="Lot_Area" min="1500" max="30000" step="100" value="{{ defaults.Lot_Area or 8500 }}" required>
+                            <span class="hint">Total land plot size</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Overall_Quality">Overall Material Quality (1 - 10)</label>
+                            <input type="range" id="Overall_Quality" name="Overall_Quality" min="1" max="10" value="{{ defaults.Overall_Quality or 7 }}" oninput="document.getElementById('qualVal').innerText = this.value">
+                            <div class="slider-display">Selected Rating: <strong id="qualVal">{{ defaults.Overall_Quality or 7 }}</strong>/10</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Neighborhood_Score">Neighborhood Desirability (1 - 10)</label>
+                            <input type="range" id="Neighborhood_Score" name="Neighborhood_Score" min="1.0" max="10.0" step="0.1" value="{{ defaults.Neighborhood_Score or 7.5 }}" oninput="document.getElementById('neighVal').innerText = this.value">
+                            <div class="slider-display">Desirability Index: <strong id="neighVal">{{ defaults.Neighborhood_Score or 7.5 }}</strong>/10</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <span>Estimate Market Valuation</span>
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Column: Result Panel & Breakdown -->
+            <div class="card result-card">
+                <div class="card-header">
+                    <h2>Valuation Output</h2>
+                    <p>Live inference computed by the trained Linear Regression model.</p>
+                </div>
+
+                <div class="price-display-box">
+                    <span class="price-subtitle">Estimated Fair Market Value</span>
+                    <div class="price-amount">{{ formatted_price or "$739,788.00" }}</div>
+                    <div class="confidence-tag">✓ Confidence Interval: ± ${{ "{:,.0f}".format(meta.metrics.test_rmse if meta.metrics else 17190) }}</div>
+                </div>
+
+                {% if contributions %}
+                <div class="breakdown-section">
+                    <h3>Marginal Price Breakdown:</h3>
+                    <ul class="breakdown-list">
+                        {% for k, v in contributions.items() %}
+                        <li class="breakdown-item">
+                            <span class="component-name">{{ k }}</span>
+                            <span class="component-val {% if v >= 0 %}positive{% else %}negative{% endif %}">
+                                {% if v >= 0 %}+{% else %}-{% endif %}${{ "{:,.2f}".format(v|abs) }}
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="archetype-presets">
+                    <h3>Quick Test Archetypes</h3>
+                    <div class="preset-buttons">
+                        <button type="button" class="btn-chip" onclick="setPreset(1100, 2, 1.0, 20, 1, 4500, 5, 6.0)">Starter Home ($445k)</button>
+                        <button type="button" class="btn-chip" onclick="setPreset(2250, 4, 2.5, 12, 2, 9500, 7, 7.5)">Suburban Family ($754k)</button>
+                        <button type="button" class="btn-chip" onclick="setPreset(3650, 5, 4.0, 2, 3, 16000, 9, 9.2)">Luxury Villa ($1.08M)</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Model Interpretability Section -->
+        <section class="card section-card">
+            <div class="card-header">
+                <h2>Model Interpretability & Coefficients (OLS)</h2>
+                <p>Economic marginal effects: How each unit change in a feature alters the expected house valuation.</p>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Feature Name</th>
+                            <th>Raw Coefficient (β)</th>
+                            <th>Direction</th>
+                            <th>Real-Estate Meaning & Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if meta.coefficients %}
+                        {% for feat, coef in meta.coefficients.items() %}
+                        <tr>
+                            <td><strong>{{ feat }}</strong></td>
+                            <td class="mono {% if coef >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                {% if coef >= 0 %}+{% endif %}${{ "{:,.2f}".format(coef) }}
+                            </td>
+                            <td>
+                                <span class="badge {% if coef >= 0 %}badge-success{% else %}badge-danger{% endif %}">
+                                    {% if coef >= 0 %}Appreciating{% else %}Depreciating{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                Each unit increase in {{ feat }} alters market price by 
+                                <strong>{% if coef >= 0 %}+{% else %}-{% endif %}${{ "{:,.2f}".format(coef|abs) }}</strong>, ceteris paribus.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr><td colspan="4">Run training to populate coefficients.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Visual Analytics Gallery -->
+        <section class="card section-card">
+            <div class="card-header">
+                <h2>Exploratory & Evaluation Visualizations</h2>
+                <p>Data science visual diagnostics validating linearity, normality of residuals, and feature correlation.</p>
+            </div>
+            <div class="visuals-grid">
+                <div class="visual-box">
+                    <h4>Target Price Distribution</h4>
+                    <img src="{{ url_for('static', filename='plots/price_distribution.png') }}" alt="Price Distribution">
+                </div>
+                <div class="visual-box">
+                    <h4>Feature Correlation Heatmap</h4>
+                    <img src="{{ url_for('static', filename='plots/correlation_heatmap.png') }}" alt="Correlation Heatmap">
+                </div>
+                <div class="visual-box">
+                    <h4>Actual vs. Predicted Prices</h4>
+                    <img src="{{ url_for('static', filename='plots/actual_vs_predicted.png') }}" alt="Actual vs Predicted">
+                </div>
+                <div class="visual-box">
+                    <h4>Residuals Distribution</h4>
+                    <img src="{{ url_for('static', filename='plots/residuals_distribution.png') }}" alt="Residuals Distribution">
+                </div>
+                <div class="visual-box full-width">
+                    <h4>Feature Importance (Linear Regression Coefficients)</h4>
+                    <img src="{{ url_for('static', filename='plots/feature_importance.png') }}" alt="Feature Importance">
+                </div>
+            </div>
+        </section>
+
+        <!-- SyntecxHub Internship Submission Guide -->
+        <section class="card submission-card">
+            <div class="card-header">
+                <h2>SyntecxHub Submission & Repository Compliance</h2>
+                <p>Constraints fulfilled as specified in Week 1 Task instructions:</p>
+            </div>
+            <div class="checklist-grid">
+                <div class="check-item done">
+                    <span class="icon">✓</span>
+                    <div>
+                        <strong>Load housing dataset, clean and explore features</strong>
+                        <p>Missing value imputation, outlier filtering, and multi-factor EDA completed.</p>
+                    </div>
+                </div>
+                <div class="check-item done">
+                    <span class="icon">✓</span>
+                    <div>
+                        <strong>Select features, split train/test & train Linear Regression</strong>
+                        <p>8-feature predictive matrix, 80/20 stratified split, and OLS fit executed.</p>
+                    </div>
+                </div>
+                <div class="check-item done">
+                    <span class="icon">✓</span>
+                    <div>
+                        <strong>Evaluate using RMSE and R², interpret coefficients</strong>
+                        <p>Test R² = 98.11%, RMSE = $17,190 with tabular marginal price breakdown.</p>
+                    </div>
+                </div>
+                <div class="check-item done">
+                    <span class="icon">✓</span>
+                    <div>
+                        <strong>Save model and show example predictions</strong>
+                        <p>Saved to joblib pickle format with live Web UI and CLI predictor.</p>
+                    </div>
+                </div>
+                <div class="check-item done">
+                    <span class="icon">✓</span>
+                    <div>
+                        <strong>GitHub Repository Naming Rule</strong>
+                        <p>Repository name: <code>Syntecxhub_House_Price_Prediction</code></p>
+                    </div>
+                </div>
+                <div class="check-item done">
+                    <span class="icon">✓</span>
+                    <div>
+                        <strong>LinkedIn Internship Share</strong>
+                        <p>Post template included in project README mentioning @Syntecxhub.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>© 2026 SyntecxHub Internship Program · Machine Learning Week 1 · Project 1</p>
+            <p>Bridging learning with practical experience · <a href="https://syntecxhub.com" target="_blank">syntecxhub.com</a></p>
+        </div>
+    </footer>
+
+    <script>
+        function setPreset(sqft, beds, baths, age, garage, lot, qual, neigh) {
+            document.getElementById('Square_Feet').value = sqft;
+            document.getElementById('Bedrooms').value = beds;
+            document.getElementById('Bathrooms').value = baths;
+            document.getElementById('House_Age').value = age;
+            document.getElementById('Garage_Cars').value = garage;
+            document.getElementById('Lot_Area').value = lot;
+            document.getElementById('Overall_Quality').value = qual;
+            document.getElementById('qualVal').innerText = qual;
+            document.getElementById('Neighborhood_Score').value = neigh;
+            document.getElementById('neighVal').innerText = neigh;
+        }
+    </script>
+</body>
+</html>

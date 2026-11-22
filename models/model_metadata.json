@@ -1,0 +1,78 @@
+{
+    "model_type": "LinearRegression",
+    "intercept": 54343.580184212886,
+    "features": [
+        "Square_Feet",
+        "Bedrooms",
+        "Bathrooms",
+        "House_Age",
+        "Garage_Cars",
+        "Lot_Area",
+        "Overall_Quality",
+        "Neighborhood_Score"
+    ],
+    "coefficients": {
+        "Square_Feet": 125.68421233967403,
+        "Bedrooms": 15620.918034193155,
+        "Bathrooms": 23931.143841182584,
+        "House_Age": -709.3095860526282,
+        "Garage_Cars": 13289.332079797712,
+        "Lot_Area": 2.881621796928812,
+        "Overall_Quality": 22994.8208903032,
+        "Neighborhood_Score": 11791.60083962953
+    },
+    "metrics": {
+        "train_r2": 0.9779,
+        "test_r2": 0.9811,
+        "train_rmse": 18059.53,
+        "test_rmse": 17190.29,
+        "train_mae": 14570.59,
+        "test_mae": 13551.59,
+        "train_mape": 2.15,
+        "test_mape": 2.01
+    },
+    "train_samples": 1241,
+    "test_samples": 311,
+    "standardized_importance": [
+        {
+            "Feature": "Square_Feet",
+            "Standardized_Coeff": 0.6039818063884694,
+            "Coefficient": 125.68421233967403
+        },
+        {
+            "Feature": "Overall_Quality",
+            "Standardized_Coeff": 0.27068284614607,
+            "Coefficient": 22994.8208903032
+        },
+        {
+            "Feature": "Bathrooms",
+            "Standardized_Coeff": 0.18559659345588086,
+            "Coefficient": 23931.143841182584
+        },
+        {
+            "Feature": "Bedrooms",
+            "Standardized_Coeff": 0.15696569344110045,
+            "Coefficient": 15620.918034193155
+        },
+        {
+            "Feature": "Neighborhood_Score",
+            "Standardized_Coeff": 0.15455348593827176,
+            "Coefficient": 11791.60083962953
+        },
+        {
+            "Feature": "House_Age",
+            "Standardized_Coeff": -0.1152555157145008,
+            "Coefficient": -709.3095860526282
+        },
+        {
+            "Feature": "Garage_Cars",
+            "Standardized_Coeff": 0.08825352587001807,
+            "Coefficient": 13289.332079797712
+        },
+        {
+            "Feature": "Lot_Area",
+            "Standardized_Coeff": 0.07030663767668992,
+            "Coefficient": 2.881621796928812
+        }
+    ]
+}
